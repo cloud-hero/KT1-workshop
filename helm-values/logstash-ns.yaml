@@ -24,7 +24,7 @@ logstashPipeline:
     }
   }
   filter {
-    mutate { add_field => { "[@metadata][target_index]" => "[kubernetes][namespace]-%{+yyyy.MM.dd}" } }
+    mutate { add_field => { "[@metadata][target_index]" => "%{[kubernetes][namespace]}-%{+yyyy.MM.dd}" } }
   }
   output {
     elasticsearch {
