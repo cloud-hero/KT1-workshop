@@ -25,9 +25,11 @@ logstashPipeline:
   }
   filter {
     mutate { add_field => { "[@metadata][target_index]" => "%{[kubernetes][namespace]}-%{+yyyy.MM.dd}" } }
-    grok {
-      match => { "message" => ["%{IPORHOST:remote} %{IPORHOST:host} %{USER:user} \[%{HTTPDATE:time}\] \"(?:%{WORD:method} %{NOTSPACE:path}(?: HTTP/%{NUMBER:httpversion})?)\" %{NUMBER:code} (?:%{NUMBER:size}|-) %{QS:referer} %{QS:agent} %{GREEDYDATA:http_x_forwarded_for}"] }
-      remove_field => "message"
+    if ([kubernetes][namespace == "red") or ([kubernetes][namespace == "green")) or ([kubernetes][namespace == "blue") {
+      grok {
+        match => { "message" => ["%{IPORHOST:remote} (?:%{IPORHOST:host}|-) %{USER:user} \[%{HTTPDATE:time}\] \"(?:%{WORD:method} %{NOTSPACE:path}(?: HTTP/%{NUMBER:httpversion})?)\" %{NUMBER:code} %{NUMBER:size} %{QS:referer} %{QS:agent} %{GREEDYDATA:http_x_forwarded_for}"] }
+        remove_field => "message"
+      }
     }
   }
   output {
